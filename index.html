@@ -7,7 +7,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   </head>
   <body class="flex items-center justify-center min-h-screen">
-    <div class="w-full max-w-md mx-auto h-fit rounded bg-gray-50 p-10">
+    <div
+      class="w-full max-w-md mx-auto h-fit rounded bg-gray-50 p-10 grid gap-4"
+    >
       <!-- single input  -->
       <div class="relative rounded country_id error_wrapper">
         <label for="countryInput" class="text-16 text-black"> Country </label>
@@ -204,25 +206,38 @@
         "country-suggestions",
         {
           onSelect: (item) => {
-            // Clear dependent fields
             clearDependentFields(["state", "city", "town"]);
-            window.autocompleteInstances["stateInput"].setSuggestions([
-              {
-                name: "state",
-                id: 1,
-              },
-            ]);
             window.autocompleteInstances["stateInput"].enable();
+            window.autocompleteInstances["stateInput"].setSuggestions(
+              item.id === 1
+                ? [
+                    {
+                      name: "state",
+                      id: 1,
+                    },
+                  ]
+                : [
+                    {
+                      name: "state2",
+                      id: 2,
+                    },
+                  ]
+            );
           },
         }
       );
-      countryAutocomplete.setSuggestions([{ name: "country", id: 1 }]);
+      countryAutocomplete.setSuggestions([
+        { name: "country", id: 1 },
+        { name: "country2", id: 2 },
+      ]);
 
       // State selector with default selection example
       const stateAutocomplete = new AutocompleteInput(
         "stateInput",
         "state-suggestions",
         {
+          initialDisabled: true,
+          disabledPlaceholder: "First select a country",
           onSelect: (item) => {
             // Clear dependent fields
             clearDependentFields(["city", "town"]);
@@ -245,6 +260,8 @@
         "cityInput",
         "city-suggestions",
         {
+          initialDisabled: true,
+          disabledPlaceholder: "First select a state",
           onSelect: (item) => {
             // Clear dependent fields
             clearDependentFields(["town"]);
@@ -265,6 +282,8 @@
         "townInput",
         "town-suggestions",
         {
+          initialDisabled: true,
+          disabledPlaceholder: "First select a city",
           onSelect: (item) => {
             console.log("Town selected:", item);
           },

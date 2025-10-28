@@ -10,6 +10,8 @@ class AutocompleteInput {
       minSearchLength: options.minSearchLength || 0,
       defaultSelect: options.defaultSelect || null,
       acceptCustom: options.acceptCustom || false,
+      initialDisabled: options.initialDisabled || false,
+      disabledPlaceholder: options.disabledPlaceholder || null,
       ...options,
     };
 
@@ -54,6 +56,9 @@ class AutocompleteInput {
     // Store reference globally
     window.autocompleteInstances = window.autocompleteInstances || {};
     window.autocompleteInstances[this.inputId] = this;
+    if (this.options.initialDisabled) {
+      this.disable(this.options.disabledPlaceholder);
+    }
   }
 
   bindEvents() {
@@ -67,7 +72,6 @@ class AutocompleteInput {
     });
     this.input.addEventListener("click", () => {
       if (!this.input.disabled && this.suggestions.length > 0) {
-        // Show all suggestions on click (same as focus)
         this.filteredSuggestions = [...this.suggestions];
         this.selectedIndex = -1;
         this.showSuggestions();
@@ -83,7 +87,7 @@ class AutocompleteInput {
     // Document click to close suggestions
     document.addEventListener("click", (e) => {
       if (!this.input.closest(".error_wrapper")?.contains(e.target)) {
-        this.hideSuggestions();
+        this.hideSuggestions(`document ${JSON.stringify(this)}`);
       }
     });
   }
@@ -118,15 +122,6 @@ class AutocompleteInput {
   }
 
   handleFocus() {
-    if (this.input.disabled) {
-      console.log(`${this.inputId} is disabled, not showing suggestions`);
-      return;
-    }
-
-    console.log(
-      `Handling focus for ${this.inputId}, suggestions count: ${this.suggestions.length}`
-    );
-
     if (this.dropdown) this.dropdown.style.transform = "rotate(180deg)";
 
     // Show all suggestions on focus (not filtered by current value)
@@ -143,7 +138,6 @@ class AutocompleteInput {
     const selectedItem = this.suggestions.find(
       (item) => item.name.toLowerCase().replace(/\s+/g, " ") === searchValue
     );
-    console.log(this.options.acceptCustom);
     if (selectedItem) {
       this.selectItem(selectedItem);
     } else if (!this.options.acceptCustom) {
@@ -153,7 +147,6 @@ class AutocompleteInput {
     if (
       !this.input.closest(".error_wrapper")?.contains(document.activeElement)
     ) {
-      this.hideSuggestions();
       if (this.dropdown) this.dropdown.style.transform = "rotate(0deg)";
     }
   }
@@ -180,7 +173,7 @@ class AutocompleteInput {
         }
         break;
       case "Escape":
-        this.hideSuggestions();
+        this.hideSuggestions(`handle key down ${JSON.stringify(this)}`);
         this.input.blur();
         break;
     }
@@ -203,10 +196,6 @@ class AutocompleteInput {
   }
 
   filterSuggestions(query) {
-    console.log(
-      `Filtering suggestions for ${this.inputId}, query: "${query}", total suggestions: ${this.suggestions.length}`
-    );
-
     if (!query || query.trim() === "") {
       this.filteredSuggestions = [...this.suggestions];
     } else {
@@ -215,21 +204,10 @@ class AutocompleteInput {
       );
     }
 
-    console.log(
-      `Filtered suggestions for ${this.inputId}: ${this.filteredSuggestions.length}`
-    );
     this.selectedIndex = -1;
   }
 
   showSuggestions() {
-    if (this.input.disabled) {
-      console.log(
-        `Cannot show suggestions for ${this.inputId} - input is disabled`
-      );
-      return;
-    }
-
-    console.log(`Showing suggestions for ${this.inputId}`);
     this.isOpen = true;
     this.renderSuggestions();
     this.suggestionsContainer.classList.remove("hidden");
@@ -237,7 +215,6 @@ class AutocompleteInput {
   }
 
   hideSuggestions() {
-    console.log(`Hiding suggestions for ${this.inputId}`);
     this.isOpen = false;
     this.suggestionsContainer.classList.add("hidden");
     this.suggestionsContainer.style.display = "none";
@@ -245,8 +222,6 @@ class AutocompleteInput {
   }
 
   renderSuggestions() {
-    console.log(`Rendering suggestions for ${this.inputId}`);
-
     if (this.isLoading) {
       this.suggestionsContainer.innerHTML = `
                            <div class="p-4 text-center">
@@ -277,7 +252,6 @@ class AutocompleteInput {
 
     const suggestionsHTML = this.filteredSuggestions
       .map((item, index) => {
-        console.log(item);
         return `
                            <div
                                class="suggestion-item px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0 ${
@@ -337,7 +311,7 @@ class AutocompleteInput {
     this.currentValue = item.name;
     this.input.value = item.name;
     if (this.hiddenInput) this.hiddenInput.value = item.id;
-    this.hideSuggestions();
+    this.hideSuggestions(`select item ${JSON.stringify(this)}`);
     this.clearError();
     // Call onSelect callback
     if (this.options.onSelect) {
@@ -347,10 +321,7 @@ class AutocompleteInput {
 
   // Public API methods
   setSuggestions(suggestions) {
-    console.log(`Setting suggestions for ${this.inputId}:`, suggestions);
     this.suggestions = suggestions || [];
-
-    // Check for default selection after setting suggestions
     this.checkDefaultSelect();
   }
 
@@ -361,8 +332,8 @@ class AutocompleteInput {
       );
 
       if (defaultItem) {
-        this.setValue(defaultItem, true); // Trigger callback for cascade
-        this.options.defaultSelect = null; // Clear after use
+        this.setValue(defaultItem, true);
+        this.options.defaultSelect = null;
       }
     }
   }
@@ -435,7 +406,7 @@ class AutocompleteInput {
     if (this.hiddenInput) this.hiddenInput.value = "";
     this.currentValue = "";
     this.selectedItem = null;
-    this.hideSuggestions();
+    this.hideSuggestions(`clear ${JSON.stringify(this)}`);
     this.clearError();
   }
 
@@ -446,13 +417,30 @@ class AutocompleteInput {
       "First select",
       "Select"
     );
+    if (this.options.disabledPlaceholder) {
+      // Restore original placeholder if it was changed
+      this.input.placeholder = this.input.placeholder.replace(
+        this.options.disabledPlaceholder,
+        this.input.getAttribute("data-original-placeholder") || "Select"
+      );
+    }
   }
 
   disable() {
     this.input.disabled = true;
     this.input.classList.add("cursor-progress");
-    this.hideSuggestions();
-    this.clear();
+    this.input.classList.add("pointer-event-none");
+    // this.clear();
+    if (this.disabledPlaceholder) {
+      // Store original placeholder if not already stored
+      if (!this.input.getAttribute("data-original-placeholder")) {
+        this.input.setAttribute(
+          "data-original-placeholder",
+          this.input.placeholder
+        );
+      }
+      this.input.placeholder = disabledPlaceholder;
+    }
   }
 }
 
@@ -465,8 +453,8 @@ window.selectSuggestion = function (inputId, index) {
 };
 
 // Helper functions
-function clearDependentFields(fieldNames) {
-  fieldNames.forEach((fieldName) => {
+async function clearDependentFields(fieldNames) {
+  await fieldNames.forEach((fieldName) => {
     const inputId = fieldName + "Input";
     if (window.autocompleteInstances[inputId]) {
       window.autocompleteInstances[inputId].disable();
@@ -527,7 +515,6 @@ function getFormData() {
       formData[key] = value;
     }
   });
-  console.log("Form Data:", formData);
   alert("Check console for form data");
 }
 
