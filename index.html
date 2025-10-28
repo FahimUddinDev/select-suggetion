@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body class="flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-md mx-auto h-fit rounded bg-gray-50 p-10">
+      <!-- single input  -->
+      <div class="relative rounded country_id error_wrapper">
+        <label for="countryInput" class="text-16 text-black"> Country </label>
+        <div class="relative mt-1.5">
+          <div class="flex gap-2">
+            <div class="w-full relative">
+              <div class="flex items-center relative">
+                <!-- set id like "your chosen name +"Input"  -->
+                <input
+                  id="countryInput"
+                  type="text"
+                  placeholder="Type country"
+                  class="w-full rounded outline-none focus:outline-none px-4 py-3 border border-stock bg-light error:border-error-border form_input_error check_validation"
+                  autocomplete="off"
+                />
+                <svg
+                  class="absolute right-3"
+                  width="12"
+                  height="6"
+                  viewBox="0 0 12 6"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M11 1L6 5L0.999999 0.999999"
+                    stroke="#0A192F"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+              <!-- set id like "your chosen name +"-suggestions"  -->
+              <div
+                id="country-suggestions"
+                class="absolute w-full bg-white border border-stock rounded mt-1 hidden max-h-[200px] overflow-y-auto z-10 modal-content"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <input type="hidden" id="selectedCountry" name="country_id" value="" />
+
+        <p class="text-12 pt-1 text-red hidden error:block">
+          message will be shown here
+        </p>
+      </div>
+
+      <div class="relative rounded state_id error_wrapper">
+        <label for="stateInput" class="text-16 text-black"> State </label>
+        <div class="relative mt-1.5">
+          <div class="flex gap-2">
+            <div class="w-full relative">
+              <div class="flex items-center relative">
+                <!-- set id like "your chosen name +"Input"  -->
+                <input
+                  id="stateInput"
+                  type="text"
+                  placeholder="Type state"
+                  class="w-full rounded outline-none focus:outline-none px-4 py-3 border border-stock bg-light error:border-error-border form_input_error check_validation"
+                  autocomplete="off"
+                />
+                <svg
+                  class="absolute right-3"
+                  width="12"
+                  height="6"
+                  viewBox="0 0 12 6"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M11 1L6 5L0.999999 0.999999"
+                    stroke="#0A192F"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+              <!-- set id like "your chosen name +"-suggestions"  -->
+              <div
+                id="state-suggestions"
+                class="absolute w-full bg-white border border-stock rounded mt-1 hidden max-h-[200px] overflow-y-auto z-10 modal-content"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <input type="hidden" id="selectedState" name="state_id" value="" />
+
+        <p class="text-12 pt-1 text-red hidden error:block">
+          message will be shown here
+        </p>
+      </div>
+
+      <!-- single input  -->
+      <div class="relative rounded city_id error_wrapper">
+        <label for="cityInput" class="text-16 text-black"> City </label>
+        <div class="relative mt-1.5">
+          <div class="flex gap-2">
+            <div class="w-full relative">
+              <div class="flex items-center relative">
+                <!-- set id like "your chosen name +"Input"  -->
+                <input
+                  id="cityInput"
+                  type="text"
+                  placeholder="Type city"
+                  class="w-full rounded outline-none focus:outline-none px-4 py-3 border border-stock bg-light error:border-error-border form_input_error check_validation"
+                  autocomplete="off"
+                />
+                <svg
+                  class="absolute right-3"
+                  width="12"
+                  height="6"
+                  viewBox="0 0 12 6"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M11 1L6 5L0.999999 0.999999"
+                    stroke="#0A192F"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+              <!-- set id like "your chosen name +"-suggestions"  -->
+              <div
+                id="city-suggestions"
+                class="absolute w-full bg-white border border-stock rounded mt-1 hidden max-h-[200px] overflow-y-auto z-10 modal-content"
+              ></div>
+            </div>
+          </div>
+        </div>
+        <input type="hidden" id="selectedCity" name="city_id" value="" />
+
+        <p class="text-12 pt-1 text-red hidden error:block">
+          message will be shown here
+        </p>
+      </div>
+      <!-- single input  -->
+      <div class="relative rounded town_id error_wrapper">
+        <label for="townInput" class="text-16 text-black"> Town </label>
+        <div class="relative mt-1.5">
+          <div class="flex gap-2">
+            <div class="w-full relative">
+              <div class="flex items-center relative">
+                <!-- set id like "your chosen name +"Input"  -->
+                <input
+                  id="townInput"
+                  type="text"
+                  placeholder="Type town"
+                  class="w-full rounded outline-none focus:outline-none px-4 py-3 border border-stock bg-light error:border-error-border form_input_error check_validation"
+                  autocomplete="off"
+                  value=""
+                />
+                <svg
+                  class="absolute right-3"
+                  width="12"
+                  height="6"
+                  viewBox="0 0 12 6"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M11 1L6 5L0.999999 0.999999"
+                    stroke="#0A192F"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+              <!-- set id like "your chosen name +"-suggestions"  -->
+              <div
+                id="town-suggestions"
+                class="absolute w-full bg-white border border-stock rounded mt-1 hidden max-h-[200px] overflow-y-auto z-10 modal-content"
+              ></div>
+            </div>
+          </div>
+        </div>
+        <input type="hidden" id="selectedTown" name="town_id" value="" />
+        <p class="text-12 pt-1 text-red hidden error:block">
+          message will be shown here
+        </p>
+      </div>
+    </div>
+
+    <script src="main.js"></script>
+    <script>
+      const countryAutocomplete = new AutocompleteInput(
+        "countryInput",
+        "country-suggestions",
+        {
+          onSelect: (item) => {
+            // Clear dependent fields
+            clearDependentFields(["state", "city", "town"]);
+            window.autocompleteInstances["stateInput"].setSuggestions([
+              {
+                name: "state",
+                id: 1,
+              },
+            ]);
+            window.autocompleteInstances["stateInput"].enable();
+          },
+        }
+      );
+      countryAutocomplete.setSuggestions([{ name: "country", id: 1 }]);
+
+      // State selector with default selection example
+      const stateAutocomplete = new AutocompleteInput(
+        "stateInput",
+        "state-suggestions",
+        {
+          onSelect: (item) => {
+            // Clear dependent fields
+            clearDependentFields(["city", "town"]);
+            // Enable and populate city selector
+            window.autocompleteInstances["cityInput"].setSuggestions([
+              {
+                name: "city",
+                id: 1,
+              },
+            ]);
+            // enable input field
+            window.autocompleteInstances["cityInput"].enable();
+          },
+        }
+      );
+      stateAutocomplete.setSuggestions([{ name: "state", id: 1 }]);
+
+      // City selector
+      const cityAutocomplete = new AutocompleteInput(
+        "cityInput",
+        "city-suggestions",
+        {
+          onSelect: (item) => {
+            // Clear dependent fields
+            clearDependentFields(["town"]);
+            window.autocompleteInstances["townInput"].setSuggestions([
+              {
+                name: "town",
+                id: 1,
+              },
+            ]);
+            window.autocompleteInstances["townInput"].enable();
+          },
+        }
+      );
+      cityAutocomplete.setSuggestions([{ name: "city", id: 1 }]);
+
+      // Town selector
+      const townAutocomplete = new AutocompleteInput(
+        "townInput",
+        "town-suggestions",
+        {
+          onSelect: (item) => {
+            console.log("Town selected:", item);
+          },
+        }
+      );
+      townAutocomplete.setSuggestions([{ name: "town", id: 1 }]);
+    </script>
+  </body>
+</html>
