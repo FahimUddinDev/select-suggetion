@@ -52,7 +52,7 @@ class AutocompleteInput {
 
   init() {
     this.bindEvents();
-
+    window.selectPendingEvent = false;
     // Store reference globally
     window.autocompleteInstances = window.autocompleteInstances || {};
     window.autocompleteInstances[this.inputId] = this;
@@ -87,7 +87,7 @@ class AutocompleteInput {
     // Document click to close suggestions
     document.addEventListener("click", (e) => {
       if (!this.input.closest(".error_wrapper")?.contains(e.target)) {
-        this.hideSuggestions(`document ${JSON.stringify(this)}`);
+        this.hideSuggestions();
       }
     });
   }
@@ -121,33 +121,56 @@ class AutocompleteInput {
     }, this.options.debounceTime);
   }
 
-  handleFocus() {
-    if (this.dropdown) this.dropdown.style.transform = "rotate(180deg)";
+  async handleFocus() {
+    if (
+      window.selectPendingEvent &&
+      typeof window.selectPendingEvent.then === "function" &&
+      window.selectPendingEvent.origin !== this
+    ) {
+      await window.selectPendingEvent;
+    }
 
-    // Show all suggestions on focus (not filtered by current value)
-    // This is the key fix - always show all options when focusing
+    // Create a new pending promise and tag the origin
+    window.selectPendingEvent = new Promise((resolve) => {
+      window._resolveSelectPendingEvent = resolve;
+    });
+    window.selectPendingEvent.origin = this;
+
+    if (this.dropdown) this.dropdown.style.transform = "rotate(180deg)";
     this.filteredSuggestions = [...this.suggestions];
     this.selectedIndex = -1;
-    this.showSuggestions();
+    await this.showSuggestions();
   }
   handleBlur(e) {
     const searchValue = this.input.value
       .trim()
       .toLowerCase()
       .replace(/\s+/g, " ");
+
     const selectedItem = this.suggestions.find(
       (item) => item.name.toLowerCase().replace(/\s+/g, " ") === searchValue
     );
+
     if (selectedItem) {
       this.selectItem(selectedItem);
     } else if (!this.options.acceptCustom) {
       this.input.value = "";
       if (this.hiddenInput) this.hiddenInput.value = "";
     }
+
     if (
       !this.input.closest(".error_wrapper")?.contains(document.activeElement)
     ) {
       if (this.dropdown) this.dropdown.style.transform = "rotate(0deg)";
+    }
+    if (
+      window.selectPendingEvent &&
+      window.selectPendingEvent.origin === this &&
+      typeof window._resolveSelectPendingEvent === "function"
+    ) {
+      window._resolveSelectPendingEvent();
+      window._resolveSelectPendingEvent = null;
+      console.log("Blur promise resolved for", this);
     }
   }
 
@@ -207,7 +230,16 @@ class AutocompleteInput {
     this.selectedIndex = -1;
   }
 
-  showSuggestions() {
+  async showSuggestions() {
+    if (
+      window.selectPendingEvent &&
+      typeof window.selectPendingEvent.then === "function" &&
+      window.selectPendingEvent.origin !== this
+    ) {
+      console.log("Waiting for pending event from another component...");
+      await window.selectPendingEvent;
+      console.log("Pending event resolved, continuing showSuggestions()");
+    }
     this.isOpen = true;
     this.renderSuggestions();
     this.suggestionsContainer.classList.remove("hidden");
@@ -311,12 +343,13 @@ class AutocompleteInput {
     this.currentValue = item.name;
     this.input.value = item.name;
     if (this.hiddenInput) this.hiddenInput.value = item.id;
-    this.hideSuggestions(`select item ${JSON.stringify(this)}`);
+    this.hideSuggestions();
     this.clearError();
     // Call onSelect callback
     if (this.options.onSelect) {
       this.options.onSelect(item, this);
     }
+    this.input.blur();
   }
 
   // Public API methods
@@ -430,7 +463,7 @@ class AutocompleteInput {
     this.input.disabled = true;
     this.input.classList.add("cursor-progress");
     this.input.classList.add("pointer-event-none");
-    // this.clear();
+    this.clear();
     if (this.disabledPlaceholder) {
       // Store original placeholder if not already stored
       if (!this.input.getAttribute("data-original-placeholder")) {
@@ -441,6 +474,12 @@ class AutocompleteInput {
       }
       this.input.placeholder = disabledPlaceholder;
     }
+  }
+  createPendingEvent() {
+    let resolveFunc;
+    const promise = new Promise((resolve) => (resolveFunc = resolve));
+    promise.resolve = resolveFunc;
+    return promise;
   }
 }
 
@@ -487,23 +526,6 @@ function updateSelectedValuesDisplay() {
     values.length > 0
       ? values.join("")
       : '<div class="text-gray-400">No selections made</div>';
-}
-
-// Demo functions
-function setDefaultData() {
-  // Example of setting default selections programmatically
-  const defaultCountry = { value: "us", label: "United States" };
-  window.autocompleteInstances["countryInput"].setValue(defaultCountry);
-}
-
-function clearAllSelections() {
-  Object.keys(window.autocompleteInstances).forEach((key) => {
-    window.autocompleteInstances[key].clear();
-    if (key !== "countryInput" && key !== "testInput") {
-      window.autocompleteInstances[key].disable();
-    }
-  });
-  updateSelectedValuesDisplay();
 }
 
 function getFormData() {
