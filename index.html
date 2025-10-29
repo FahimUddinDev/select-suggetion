@@ -209,7 +209,7 @@
             clearDependentFields(["state", "city", "town"], "country");
 
             window.autocompleteInstances["stateInput"].setSuggestions(
-              item.id === 1
+              item?.id && item.id === 1
                 ? [
                     {
                       name: "state",
@@ -241,6 +241,7 @@
           disabledPlaceholder: "First select a country",
           onSelect: (item) => {
             clearDependentFields(["city", "town"], "state");
+            console.log("called");
             window.autocompleteInstances["cityInput"].setSuggestions([
               {
                 name: "city",

@@ -156,6 +156,7 @@ class AutocompleteInput {
     } else if (!this.options.acceptCustom) {
       this.input.value = "";
       if (this.hiddenInput) this.hiddenInput.value = "";
+      this.options.onSelect();
     }
 
     if (
@@ -170,7 +171,6 @@ class AutocompleteInput {
     ) {
       window._resolveSelectPendingEvent();
       window._resolveSelectPendingEvent = null;
-      console.log("Blur promise resolved for", this);
     }
   }
 
@@ -236,9 +236,7 @@ class AutocompleteInput {
       typeof window.selectPendingEvent.then === "function" &&
       window.selectPendingEvent.origin !== this
     ) {
-      console.log("Waiting for pending event from another component...");
       await window.selectPendingEvent;
-      console.log("Pending event resolved, continuing showSuggestions()");
     }
     this.isOpen = true;
     this.renderSuggestions();
